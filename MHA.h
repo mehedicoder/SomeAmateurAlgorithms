@@ -1,15 +1,36 @@
+// ======================================================================
+//
+//Copyright (C) 2018  Mehedi Hasan, MSc. Student @ OVGU Magdeburg,
+// email: md.hasan@st.ovgu.de
+// This software and related files are part of an Algorithm Engineering
+// implementation project on adaptive sorting.
+
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+//You should have received a copy of the GNU General Public License
+//along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ======================================================================
 
 #include <algorithm>
 #include <iterator>
 #include <list>
+#include <cmath>
 
 namespace MHA {
 
     template<class RandomAccessIterator, class Less = std::less<int>>
-    void a_merge_sort(RandomAccessIterator first, RandomAccessIterator beyond, Less less = {}) {
+    void a_merge_sort(RandomAccessIterator first, RandomAccessIterator beyond, Less less = {})
+    {
         const auto n = std::distance(first, beyond);
 
-        if (!std::is_sorted(first, beyond)){
+        if (!std::is_sorted(first, beyond, less)){
 
             if (n > 1) {
                 const auto middle = std::next(first, n / 2);
@@ -22,7 +43,8 @@ namespace MHA {
     }
 
     template<class RandomAccessIterator, class Less=std::less<int>>
-    void sort(RandomAccessIterator first, RandomAccessIterator beyond, Less less = {}) {
+    void hybrid_sort(RandomAccessIterator first, RandomAccessIterator beyond, Less less = {})
+    {
         auto const n = std::distance(first, beyond);
 
         if (n < 128) {
@@ -69,6 +91,7 @@ namespace MHA {
                 ++next2;
 
                 while (next2 != beyond) {
+
                     if (less(*current2, *next2)) break;
                     ++current2;
                     ++next2;
@@ -114,6 +137,7 @@ namespace MHA {
                 }
 
                 if (std::distance(current, next2) >= limit) {
+
                     if (std::distance(begin_range, current) && begin == beyond) {
                         begin = begin_range;
                     }
@@ -155,4 +179,20 @@ namespace MHA {
             }
         } while (runs.size() > 1);
     }
+
+    template<class InputIterator, class OutputIterator, class Less>
+    OutputIterator sort(
+            InputIterator first,
+            InputIterator beyond,
+            OutputIterator result,
+            Less less)
+    {
+        typedef typename std::iterator_traits<InputIterator>::value_type type;
+
+        std::vector<type> V(first, beyond);
+        hybrid_sort( V.begin(), V.end(), less);
+        std::copy( V.begin(), V.end(), result);
+        return result;
+    }
+
 }
